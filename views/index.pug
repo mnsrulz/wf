@@ -1,0 +1,16 @@
+html
+  head
+    title= title
+  body
+    h1= "Data"
+    ul
+        li
+            a(href="/46145")="Living Room Set"
+        li
+            a(href="/1868409")="TV Stands"
+        li
+            a(href="/413893")="Sectionals"
+    ul
+        each val in data.length ? data : ['There are no values']
+            li
+              a(href=val.url)= val.url
