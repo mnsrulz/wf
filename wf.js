@@ -1,4 +1,7 @@
-const fetch = require('node-fetch'); 
+//const fetch = require('node-fetch'); 
+const nodeFetch = require('node-fetch')
+const fetch = require('fetch-cookie')(nodeFetch)
+const delay = require('delay');
 
 async function wf(categoryId) {
     var res_array = [];
@@ -10,17 +13,13 @@ async function wf(categoryId) {
     var totalPages = 9999;
     var pageSize = 96;
     var allPromises = [];
-    var ffff = await fetch('https://www.wayfair.com/?px=1', {
-            "headers": {
-                "accept": "application/json",
-                "accept-language": "en-GB,en-US;q=0.9,en;q=0.8",
-                "x-parent-txid": "otAgcF2h66K6DrKBFGogAg==",
-                "x-requested-with": "XMLHttpRequest",
-                "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.80 Safari/537.36"
-            }
-        });
-    var resutsfsad = await ffff.text();
-    
+    // var ffff = await fetch('https://www.wayfair.com/?px=1', {
+    //         "headers": {
+    //             "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.80 Safari/537.36"
+    //         }
+    //     });
+    // var resutsfsad = await ffff;
+    var txid = '';
     while (productCount === -1 || page <= totalPages) {
         var urltofetch = `https://www.wayfair.com/a/superbrowse/get_data?category_id=${categoryId}&caid=${categoryId}&clid=6&filter=&curpage=${page}&itemsperpage=${pageSize}&show_favorites_button=true&product_offset=0&load_initial_products_only=false`;
         var dis = fetch(urltofetch, {
@@ -28,13 +27,15 @@ async function wf(categoryId) {
             "headers": {
                 "accept": "application/json",
                 "accept-language": "en-GB,en-US;q=0.9,en;q=0.8",
-                "x-parent-txid": "otAgcF2h66K6DrKBFGogAg==",
+                "x-parent-txid": txid, //"otAgcF2h66K6DrKBFGogAg==",
                 "x-requested-with": "XMLHttpRequest",
                 "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.80 Safari/537.36"
             },
             "referrer": "https://www.wayfair.com/furniture/sb0/tv-stands-entertainment-centers-c1868409.html?itemsperpage=96&curpage=2",
             "referrerPolicy": "no-referrer-when-downgrade", "body": null, "method": "GET", "mode": "cors"
-        }).then(response => response.json()).then(response => {
+        }).then((response) => {
+            return response.json();
+        }).then(response => {
             //debugger;
             if (productCount != -1) {
                 try {
@@ -50,16 +51,19 @@ async function wf(categoryId) {
             var _a = await dis;
             try {
                 productCount = _a.browse.product_count;
-                totalPages = productCount / pageSize;    
+                totalPages = Math.ceil(productCount / pageSize);    
             } catch (error) {
                 totalPages = 0;
             }
             
         }
         else {
+            console.log(`Awaiting page: ${page}/${totalPages}, category: ${categoryId}`);
             page++;
+            await dis;
             allPromises.push(dis);
         }
+        //await delay(1000);
         // res_array = res_array.concat(dis.browse.browse_grid_objects);
         // productCount = dis.browse.product_count;
     }
@@ -74,6 +78,7 @@ async function wf(categoryId) {
     var skus = sortedList.map(x => x.sku);
     sortedList = sortedList.filter(function (v, i) { return skus.indexOf(v.sku) == i; });
     sortedList.forEach(x => { console.log(x.url) })
+    console.log(`processing completed for categoryid: ${categoryId}`)
     return sortedList;
     //formatted_open_box_browse_price
 }

@@ -2,15 +2,26 @@ html
   head
     title= title
   body
-    h1= "Data"
+    if lastCacheError
+      h1=lastCacheError
     ul
         li
-            a(href="/46145")="Living Room Set"
+          a(href="/category/46145")="Living Room Set"
         li
-            a(href="/1868409")="TV Stands"
+          a(href="/category/1868409")="TV Stands"
         li
-            a(href="/413893")="Sectionals"
+          a(href="/category/413893")="Sectionals"
+        li
+          a(href="/refresh")="Rebuild Cache"
+
     ul
-        each val in data.length ? data : ['There are no values']
-            li
-              a(href=val.url)= val.url
+      if data
+        each val in data
+          li
+            a(href=val.url)= val.url
+      else
+        li='There are no values'
+    div
+      div=(new Date().toJSON())
+      div=context.lastCacheDate
+      div=context.lastCacheError
