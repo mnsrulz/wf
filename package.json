@@ -16,6 +16,6 @@
     "fetch-defaults": "^1.0.0",
     "node-cache": "^5.0.0",
     "node-fetch": "^2.6.0",
-    "pug": "^2.0.4"
+    "pug": "^3.0.1"
   }
 }
